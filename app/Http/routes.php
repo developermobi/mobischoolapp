@@ -38,6 +38,18 @@ $api->version('v1', function ($api) {
     $api->post('addGroup', 'App\Http\Controllers\Api\V1\UsersController@addGroup');
 });
 
+$api->version('v1', function ($api) {
+    $api->post('addGroup', 'App\Http\Controllers\Api\V1\UsersController@addGroup');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('userGroup', 'App\Http\Controllers\Api\V1\UsersController@userGroup');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('userGroupStudent', 'App\Http\Controllers\Api\V1\UsersController@userGroupStudent');
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

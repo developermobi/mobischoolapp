@@ -88,6 +88,15 @@ class User extends Authenticatable
         return $result; 
     }
 
+    public static function checkStudent($data)
+    {
+        $name = $data['name'];
+        $parent_id = $data['parent_id'];
+
+        $result = DB::table('student')->where('name','=',$name)->where('parent_id','=',$parent_id)->get();
+        return $result; 
+    }
+
     public static function checkGroup($data)
     {
         $name = $data['name'];
@@ -100,6 +109,21 @@ class User extends Authenticatable
     public static function addGroup($data)
     {
        $result = DB::table('group')->insert($data);
+        return $result; 
+    }
+
+    public static function getUserGroup($user_id)
+    {
+        $result = DB::table('group')->where('user_id','=',$user_id)->where('status','=',1)->get();
+        return $result; 
+    }
+
+    public static function getUserGroupStudent($data)
+    {
+        $group_id = $data['group_id'];
+        $user_id = $data['user_id'];
+
+        $result = DB::table('student')->where('user_id','=',$user_id)->where('group_id','=',$group_id)->where('status','=',1)->get();
         return $result; 
     }
 
@@ -119,7 +143,6 @@ public static function resetPasswordEmail($userInfo)
     });
 
     return $res;
-
 }
 
 public static function resetPasswordSMS($userInfo)
@@ -155,7 +178,6 @@ public static function newPasswordEmail($userInfo)
     });
 
     return $res;
-
 }
 
 public static function newPasswordSMS($userInfo)
@@ -170,6 +192,41 @@ public static function newPasswordSMS($userInfo)
     $mobile = $userInfo['mobile'];
 
     $msgtxt="Dear ".$name.", User Name is ".$userName." .\nNew Password is ".$newPassword.".\nRegards,\nMobisoft Technology";
+    $msgtxt=urlencode($msgtxt);
+
+    $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendmultiplesms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile.",".$abiMobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+    return file_get_contents($sms_url);
+}
+
+public static function registrationEmail($userInfo)
+{
+
+    $res = Mail::send('emails.registration',['userInfo' => $userInfo], function($message) use ($userInfo){
+
+    $message->from('no-reply@mobisofttech.co.in', 'Mobisoft Technology');
+    $message->to($userInfo['email'])->subject('Forgot password');
+    $message->cc('ziaurrahman.a@mobisofttech.co.in');
+    $message->bcc('tushar.k@mobisofttech.co.in');      
+
+    });
+
+    return $res;
+}
+
+public static function registrationSMS($userInfo)
+{
+    $user=env('SMS_USERNAME');
+    $pwd=env('SMS_PASSWORD');
+    $senderID=env('MOBSFT'); 
+
+    $name = $userInfo['name'];
+    $userName = $userInfo['email']." / ".$userInfo['mobile'];
+    $password = $userInfo['password'];
+    $mobile = $userInfo['mobile'];
+
+    $msgtxt="Dear ".$name.", Your registration successfully done.\nUser Name is ".$userName." .\nPassword is ".$password.".\nRegards,\nMobisoft Technology";
     $msgtxt=urlencode($msgtxt);
 
     $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;

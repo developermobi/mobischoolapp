@@ -238,17 +238,31 @@ class UsersController extends Controller
                 $student['parent_id'] = $parentRegistration;
             }
 
-            $insertStudentInfo = User::addStudent($student);
+            $result_student = User::checkStudent($student);
 
-            if($insertStudentInfo)
+            if(sizeof($result_student) > 0)
             {
-                $response['status'] = "success";
-                $response['code'] = "201";
-                $response['message'] = "Created";
-                $response['data'] = $insertStudentInfo;
-                 return response()->json($response);
+                $response['status'] = "Client Error";
+                $response['code'] = 409;
+                $response['message'] = "Conflict";
+                $response['data'] = $result_student;
+                return response()->json($response);
             }
+            else{
+                $insertStudentInfo = User::addStudent($student);
 
+                if($insertStudentInfo)
+                {
+                    $email = User::registrationEmail($input);
+                    $sms = User::registrationSMS($input);
+
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertStudentInfo;
+                     return response()->json($response);
+                }
+            }
         }
         catch (\Exception $e){
             $response['status'] = "failed";
@@ -298,7 +312,7 @@ class UsersController extends Controller
                 $response['status'] = "success";
                 $response['code'] = 201;
                 $response['message'] = "Created";
-                $response['data'] = $insertStudentInfo;
+                $response['data'] = $insertGroupInfo;
                  return response()->json($response);
             }
 
@@ -309,6 +323,70 @@ class UsersController extends Controller
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }   
+    }
+
+    public  function userGroup(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+
+        $userId=$input['user_id'];
+
+        try{
+            $result = User::getUserGroup($userId);  
+             if(sizeof($result) > 0){  
+             
+                    $response['status'] = "success";
+                    $response['code'] = 302;
+                    $response['message'] = "Found";
+                    $response['data'] = $result;
+                    return response()->json($response);     
+            }
+            else{
+                $response['status'] = "success";
+                $response['code'] = 204;
+                $response['message'] = "No Content";
+                $response['data'] = $result;
+                return response()->json($response);
+            }      
+        }
+        catch (\Exception $e){
+            $response['status'] = "failed";
+            $response['code'] = 500;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public  function userGroupStudent(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+
+        try{
+            $result = User::getUserGroupStudent($input);  
+             if(sizeof($result) > 0){  
+             
+                    $response['status'] = "success";
+                    $response['code'] = 302;
+                    $response['message'] = "Found";
+                    $response['data'] = $result;
+                    return response()->json($response);     
+            }
+            else{
+                $response['status'] = "success";
+                $response['code'] = 204;
+                $response['message'] = "No Content";
+                $response['data'] = $result;
+                return response()->json($response);
+            }      
+        }
+        catch (\Exception $e){
+            $response['status'] = "failed";
+            $response['code'] = 500;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
     }
 
 }
