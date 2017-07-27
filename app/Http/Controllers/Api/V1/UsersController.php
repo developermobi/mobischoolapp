@@ -163,9 +163,15 @@ class UsersController extends Controller
         $newPassword=$input['new_password'];
 
         try{
+            $result = User::checkUserName($userName);
+            $input['name']=$result[0]->name;
+            $input['email']=$result[0]->email;
+            $input['mobile']=$result[0]->mobile;
             $resetPassword = User::resetPassword($userName,$newPassword);
 
             if($resetPassword){
+                $email = User::newPasswordEmail($input);
+                $sms = User::newPasswordSMS($input);
                 $response['status'] = "success";
                 $response['code'] = 200;
                 $response['message'] = "OK";

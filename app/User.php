@@ -106,43 +106,79 @@ class User extends Authenticatable
 
 //************************************Start email and sms functions*****************************************//
 
-    public static function resetPasswordEmail($userInfo)
-    {
+public static function resetPasswordEmail($userInfo)
+{
 
-        $res = Mail::send('emails.resetPassword',['userInfo' => $userInfo], function($message) use ($userInfo){
+    $res = Mail::send('emails.resetPassword',['userInfo' => $userInfo], function($message) use ($userInfo){
 
-        $message->from('no-reply@mobisofttech.co.in', 'Mobisoft Technology');
-        $message->to($userInfo['email'])->subject('Reset password');
-        $message->cc('ziaurrahman.a@mobisofttech.co.in');
-        $message->bcc('tushar.k@mobisofttech.co.in');      
+    $message->from('no-reply@mobisofttech.co.in', 'Mobisoft Technology');
+    $message->to($userInfo['email'])->subject('Reset password');
+    $message->cc('ziaurrahman.a@mobisofttech.co.in');
+    $message->bcc('tushar.k@mobisofttech.co.in');      
 
-        });
+    });
 
-        return $res;
+    return $res;
 
-    }
+}
+
+public static function resetPasswordSMS($userInfo)
+{
+    $user=env('SMS_USERNAME');
+    $pwd=env('SMS_PASSWORD');
+    $senderID=env('MOBSFT'); 
+
+    $name = $userInfo['name'];
+    $userName = $userInfo['user_name'];
+    $newPassword = $userInfo['new_password'];
+    $mobile = $userInfo['mobile'];
+
+    $msgtxt="Dear ".$name.", User Name is ".$userName." .\nNew Password is ".$newPassword.".\nRegards,\nMobisoft Technology";
+    $msgtxt=urlencode($msgtxt);
+
+    $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendmultiplesms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile.",".$abiMobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+    return file_get_contents($sms_url);
+}
+
+public static function newPasswordEmail($userInfo)
+{
+
+    $res = Mail::send('emails.newPassword',['userInfo' => $userInfo], function($message) use ($userInfo){
+
+    $message->from('no-reply@mobisofttech.co.in', 'Mobisoft Technology');
+    $message->to($userInfo['email'])->subject('Forgot password');
+    $message->cc('ziaurrahman.a@mobisofttech.co.in');
+    $message->bcc('tushar.k@mobisofttech.co.in');      
+
+    });
+
+    return $res;
+
+}
+
+public static function newPasswordSMS($userInfo)
+{
+    $user=env('SMS_USERNAME');
+    $pwd=env('SMS_PASSWORD');
+    $senderID=env('MOBSFT'); 
+
+    $name = $userInfo['name'];
+    $userName = $userInfo['user_name'];
+    $newPassword = $userInfo['new_password'];
+    $mobile = $userInfo['mobile'];
+
+    $msgtxt="Dear ".$name.", User Name is ".$userName." .\nNew Password is ".$newPassword.".\nRegards,\nMobisoft Technology";
+    $msgtxt=urlencode($msgtxt);
+
+    $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendmultiplesms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile.",".$abiMobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+    return file_get_contents($sms_url);
+}
 
 
-
-  public static function resetPasswordSMS($userInfo)
-  {
-        $user=env('SMS_USERNAME');
-        $pwd=env('SMS_PASSWORD');
-        $senderID=env('MOBSFT'); 
-
-        $name = $userInfo['name'];
-        $userName = $userInfo['user_name'];
-        $newPassword = $userInfo['new_password'];
-        $mobile = $userInfo['mobile'];
-
-        $msgtxt="Dear ".$name.", User Name is ".$userName." .\nNew Password is ".$newPassword.".\nRegards,\nMobisoft Technology";
-        $msgtxt=urlencode($msgtxt);
-
-        $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
-            //$sms_url= "http://makemysms.in/api/sendmultiplesms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile.",".$abiMobile."&type=1&message=".$msgtxt;
-            //$sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
-        return file_get_contents($sms_url);
-  }
 
     //************************************END email and sms functions*****************************************//
 
