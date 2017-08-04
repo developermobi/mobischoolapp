@@ -62,6 +62,10 @@ $api->version('v1', function ($api) {
     $api->post('groupNotification', 'App\Http\Controllers\Api\V1\UsersController@groupNotification');
 });
 
+$api->version('v1', function ($api) {
+    $api->post('studentNotification', 'App\Http\Controllers\Api\V1\UsersController@studentNotification');
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

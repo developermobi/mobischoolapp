@@ -562,16 +562,20 @@ class UsersController extends Controller
                     $emailData['name'] = $group[$key]->name;
 
                     $insertNotification = User::insertNotification($emailData);
+
+                    $emailData['notification_id'] = $insertNotification;
+
+                    $insertNotificationSent = User::insertNotificationSent($emailData);
                     //return response()->json($insertNofification);
                     $email = User::groupEmail($emailData);
                 } 
 
-                if($insertNotification)
+                if($insertNotificationSent)
                 {
                     $response['status'] = "success";
                     $response['code'] = "201";
                     $response['message'] = "Created";
-                    $response['data'] = $insertNotification;
+                    $response['data'] = $insertNotificationSent;
                     return response()->json($response);
                 }      
             }
@@ -579,7 +583,7 @@ class UsersController extends Controller
             if($data['notification_type'] == 2) //2.SMS
             {
                 $data['message'] = $input['message'];
-
+                //unset($input['subject']);
                 foreach ($group as $key => $value) {
                     $smsData['message'] = $data['message'];
                     $smsData['type'] = $data['notification_type'];
@@ -593,15 +597,19 @@ class UsersController extends Controller
 
                     $insertNotification = User::insertNotification($smsData);
 
+                    $smsData['notification_id'] = $insertNotification;
+
+                    $insertNotificationSent = User::insertNotificationSent($smsData);
+
                     $sms = User::groupSMS($smsData);
                 }
 
-                if($insertNotification)
+                if($insertNotificationSent)
                 {
                     $response['status'] = "success";
                     $response['code'] = "201";
                     $response['message'] = "Created";
-                    $response['data'] = $insertNotification;
+                    $response['data'] = $insertNotificationSent;
                      return response()->json($response);
                 }    
                 
@@ -615,6 +623,7 @@ class UsersController extends Controller
                 foreach ($group as $key => $value) {
                     $imageData['image'] = $data['image'];
                     $imageData['type'] = $data['notification_type'];
+                    $imageData['subject'] = $data['subject'];
                     $imageData['mobile'] = $group[$key]->mobile;
                     $imageData['email'] = $group[$key]->email;
                     $imageData['group_id'] = $group[$key]->group_id;
@@ -625,21 +634,157 @@ class UsersController extends Controller
                     
                     $insertNotification = User::insertNotification($imageData);
 
+                    $imageData['notification_id'] = $insertNotification;
+
+                    $insertNotificationSent = User::insertNotificationSent($imageData);
+
                 }
                 
-                if($insertNotification)
+                if($insertNotificationSent)
                 {
                     $response['status'] = "success";
                     $response['code'] = "201";
                     $response['message'] = "Created";
-                    $response['data'] = $insertNotification;
+                    $response['data'] = $insertNotificationSent;
                     return response()->json($response);
                 }    
             }
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public  function studentNotification(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+        $data = array();
+        $data['group_id'] = $input['group_id'];
+        $data['student_id'] = $input['student_id'];   
+        $data['notification_type'] = $input['notification_type'];
+        
+        //return response()->json($data);
+        try{
+
+            $selectedStudents = User::getSelectedStudentsData($data);
+            //return response()->json($selectedStudents);
+            $emailData = array();
+            $smsData = array();
+            $imageData = array();
+            //return response()->json($group);
+            if($data['notification_type'] == 1) //1.Email
+            {
+                $data['subject'] = $input['subject'];
+                $data['message'] = $input['message'];
+
+                foreach ($selectedStudents as $key => $value) {
+                    $emailData['subject'] = $data['subject'];
+                    $emailData['message'] = $data['message'];
+                    $emailData['type'] = $data['notification_type'];
+                    $emailData['email'] = $selectedStudents[$key]->email;
+                    $emailData['mobile'] = $selectedStudents[$key]->mobile;
+                    $emailData['group_id'] = $selectedStudents[$key]->group_id;
+                    $emailData['student_id'] = $selectedStudents[$key]->id;
+                    $emailData['parent_id'] = $selectedStudents[$key]->parent_id;
+                    $emailData['user_id'] = $selectedStudents[$key]->user_id;
+                    $emailData['name'] = $selectedStudents[$key]->name;
+
+                    $insertNotification = User::insertNotification($emailData);
+
+                    $emailData['notification_id'] = $insertNotification;
+
+                    $insertNotificationSent = User::insertNotificationSent($emailData);
+                    //return response()->json($insertNofification);
+                    $email = User::groupEmail($emailData);
+                } 
+
+                if($insertNotificationSent)
+                {
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertNotificationSent;
+                    return response()->json($response);
+                }      
+            }
+
+            if($data['notification_type'] == 2) //2.SMS
+            {
+                $data['message'] = $input['message'];
+                //unset($input['subject']);
+                foreach ($selectedStudents as $key => $value) {
+                    $smsData['message'] = $data['message'];
+                    $smsData['type'] = $data['notification_type'];
+                    $smsData['mobile'] = $selectedStudents[$key]->mobile;
+                    $smsData['email'] = $selectedStudents[$key]->email;
+                    $smsData['group_id'] = $selectedStudents[$key]->group_id;
+                    $smsData['student_id'] = $selectedStudents[$key]->id;
+                    $smsData['parent_id'] = $selectedStudents[$key]->parent_id;
+                    $smsData['user_id'] = $selectedStudents[$key]->user_id;
+                    $smsData['name'] = $selectedStudents[$key]->name;
+
+                    $insertNotification = User::insertNotification($smsData);
+
+                    $smsData['notification_id'] = $insertNotification;
+
+                    $insertNotificationSent = User::insertNotificationSent($smsData);
+
+                    $sms = User::groupSMS($smsData);
+                }
+
+                if($insertNotificationSent)
+                {
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertNotificationSent;
+                     return response()->json($response);
+                }    
+                
+            }
+
+            if($data['notification_type'] == 3) //3.Image
+            {
+                $data['image'] = $input['image'];
+                $data['subject'] = $input['subject'];
+                //return response()->json($group);
+                foreach ($selectedStudents as $key => $value) {
+                    $imageData['image'] = $data['image'];
+                    $imageData['type'] = $data['notification_type'];
+                    $imageData['subject'] = $data['subject'];
+                    $imageData['mobile'] = $selectedStudents[$key]->mobile;
+                    $imageData['email'] = $selectedStudents[$key]->email;
+                    $imageData['group_id'] = $selectedStudents[$key]->group_id;
+                    $imageData['student_id'] = $selectedStudents[$key]->id;
+                    $imageData['parent_id'] = $selectedStudents[$key]->parent_id;
+                    $imageData['user_id'] = $selectedStudents[$key]->user_id;
+                    $imageData['name'] = $selectedStudents[$key]->name;
+                    
+                    $insertNotification = User::insertNotification($imageData);
+
+                    $imageData['notification_id'] = $insertNotification;
+
+                    $insertNotificationSent = User::insertNotificationSent($imageData);
+
+                }
+                
+                if($insertNotificationSent)
+                {
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertNotificationSent;
+                    return response()->json($response);
+                }    
+            }
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }

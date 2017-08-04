@@ -176,9 +176,22 @@ class User extends Authenticatable
     {
         $group_id = $data['group_id'];
         $result = DB::table('student')
-        ->join('parent_login', 'parent_login.id', '=', 'student.parent_id')
-        ->select('student.*', 'parent_login.email', 'parent_login.mobile')
-        ->whereIn('group_id',[$group_id])->get();
+        ->join('users', 'users.id', '=', 'student.parent_id')
+        ->select('student.*', 'users.email', 'users.mobile')
+        ->whereIn('student.group_id',[$group_id])->get();
+        return $result; 
+    }
+
+    public static function getSelectedStudentsData($data)
+    {
+        $group_id = $data['group_id'];
+        $student_id = $data['student_id'];
+
+        $result = DB::table('student')
+        ->join('users', 'users.id', '=', 'student.parent_id')
+        ->select('student.*', 'users.email', 'users.mobile')
+        ->where('student.group_id','=',[$group_id])
+        ->whereIn('student.id',[$student_id])->get();
         return $result; 
     }
 
@@ -187,11 +200,28 @@ class User extends Authenticatable
         unset($data['name']);
         unset($data['email']);
         unset($data['mobile']);
+        unset($data['group_id']);
+        unset($data['student_id']);
+        unset($data['parent_id']);
+        unset($data['user_id']);
         //return $data;
-        $result = DB::table('notification')->insert($data);
+        $result = DB::table('notification')->insertGetId($data);
         return $result; 
     }
 
+    public static function insertNotificationSent($data)
+    {
+        unset($data['name']);
+        unset($data['email']);
+        unset($data['mobile']);
+        unset($data['message']);
+        unset($data['subject']);
+        unset($data['type']);
+        unset($data['image']);
+        //return $data;
+        $result = DB::table('notification_sent')->insert($data);
+        return $result; 
+    }
 
 //************************************Start email and sms functions*****************************************//
 
