@@ -16,7 +16,7 @@ DB::enableQueryLog();
 class UsersController extends Controller
 {
 
-    public  function loginUser(Request $requestData)
+    public  function login(Request $requestData)
     {
         $input=$requestData->all();
         //return response()->json($input);
@@ -25,45 +25,50 @@ class UsersController extends Controller
         $password=$input['password'];
 
         try{
-            $result = User::authenticate($userName,$password);    
+            $result = User::authenticate($userName);    
+            
+            if(sizeof($result) > 0)
+            {
+                if(($result[0]->email == $userName || $result[0]->mobile == $userName) && ($result[0]->password == $password))
+                {
+                    if($result[0]->status == 1)
+                    {
+                        $response['status'] = "success";
+                        $response['code'] = 302;
+                        $response['message'] = "Found";
+                        $response['data'] = $result;
+                        return response()->json($response);
+                    }
+                    else
+                    {
+                        $response['status'] = "success";
+                        $response['code'] = 403;
+                        $response['message'] = "Your Account is Not Active,Please contact admin";
+                        return response()->json($response);
+                    }
+                }
+                else
+                {
+                    $response['status'] = "Failed";
+                    $response['code'] = 401;
+                    $response['message'] = "In valid user";
+                    return response()->json($response);
+                }
+            }
+            else
+            {
+                $response['status'] = "Failed";
+                $response['code'] = 401;
+                $response['message'] = "In valid user";
+                return response()->json($response);
+            }
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
-        }
-         
-        //return $result;
-        
-        if(sizeof($result) > 0)
-        {  
-           //return response()->json(sizeof($results)); 
-            if($result[0]->status == 0){
-
-                $response['status'] = "success";
-                $response['code'] = 302;
-                $response['message'] = "Your Account is Not Active,Please contact admin";
-                return response()->json($response);
-
-            }
-            else{
-                $response['status'] = "success";
-                $response['code'] = 302;
-                $response['message'] = "Found";
-                $response['data'] = $result;
-                return response()->json($response);
-            }
-                     
-
-        }
-        else{
-            $response['status'] = "success";
-            $response['code'] = 204;
-            $response['message'] = "No Content";
-            $response['data'] = $result;
-            return response()->json($response);
-        }      
+        }     
     }
 
     public  function resetPassword(Request $requestData)
@@ -91,8 +96,8 @@ class UsersController extends Controller
                     $sms = User::resetPasswordSMS($input);
 
                     $response['status'] = "success";
-                    $response['code'] = 200;
-                    $response['message'] = "OK";
+                    $response['code'] = 202;
+                    $response['message'] = "Accepted";
                     $response['data'] = $result;
                     return response()->json($response);
                 }
@@ -106,16 +111,16 @@ class UsersController extends Controller
                 
             }
             else{
-                $response['status'] = "success";
-                $response['code'] = 204;
-                $response['message'] = "No Content";
+                $response['status'] = "Failed";
+                $response['code'] = 401;
+                $response['message'] = "Invalid Password";
                 $response['data'] = $result;
                 return response()->json($response);
             }      
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }
@@ -139,16 +144,16 @@ class UsersController extends Controller
                     return response()->json($response);     
             }
             else{
-                $response['status'] = "success";
-                $response['code'] = 204;
-                $response['message'] = "No Content";
+                $response['status'] = "Failed";
+                $response['code'] = 401;
+                $response['message'] = "Invalid user name.";
                 $response['data'] = $result;
                 return response()->json($response);
             }      
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }
@@ -173,8 +178,8 @@ class UsersController extends Controller
                 $email = User::newPasswordEmail($input);
                 $sms = User::newPasswordSMS($input);
                 $response['status'] = "success";
-                $response['code'] = 200;
-                $response['message'] = "OK";
+                $response['code'] = 202;
+                $response['message'] = "Accepted";
                 $response['data'] = $resetPassword;
                 return response()->json($response);
             }
@@ -187,8 +192,8 @@ class UsersController extends Controller
             } 
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }
@@ -207,7 +212,7 @@ class UsersController extends Controller
        
         if($validator->fails()){
 
-            $response['status'] = "failed";
+            $response['status'] = "Failed";
             $response['code'] = 400;
             $response['message'] = $validator->errors()->all();
             return response()->json($response);
@@ -265,8 +270,8 @@ class UsersController extends Controller
             }
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }   
@@ -282,7 +287,7 @@ class UsersController extends Controller
        
         if($validator->fails()){
 
-            $response['status'] = "failed";
+            $response['status'] = "Failed";
             $response['code'] = 400;
             $response['message'] = $validator->errors()->all();
             return response()->json($response);
@@ -318,8 +323,8 @@ class UsersController extends Controller
 
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }   
@@ -351,8 +356,8 @@ class UsersController extends Controller
             }      
         }
         catch (\Exception $e){
-            $response['status'] = "failed";
-            $response['code'] = 500;
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }
@@ -380,6 +385,257 @@ class UsersController extends Controller
                 $response['data'] = $result;
                 return response()->json($response);
             }      
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public  function updateStudent(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+        $validator = Validator::make($input, [
+            'name' => 'required',
+            'mobile' => 'required',
+            'email' => 'required',
+            'group_id'=> 'required',   
+        ]);    
+       
+        if($validator->fails()){
+
+            $response['status'] = "Failed";
+            $response['code'] = 400;
+            $response['message'] = $validator->errors()->all();
+            return response()->json($response);
+        }
+        
+        try{
+
+            $student = array();
+            $parent = array();
+
+            $student['name'] = $input['name'];
+            $student['group_id'] = $input['group_id'];
+            $student_id = $input['id'];
+
+            $parent['email'] = $input['email'];
+            $parent['mobile'] = $input['mobile'];
+
+            $parentIdByStudentId = User::getParentId($student_id);
+            $parent_id = $parentIdByStudentId[0]->parent_id;
+            
+            //return response()->json($parentIdByStudentId);
+
+            $updateStudentData = User::updateStudent($student,$student_id);
+
+            $updateParentData = User::updateParent($parent,$parent_id);
+
+            if($updateStudentData){
+
+                $response['status'] = "success";
+                $response['code'] = 200;
+                $response['message'] = "OK";
+                $response['data'] = $updateStudentData;
+
+                if($updateParentData){
+                    $password = User::getPassword($parent_id);
+                    $input['password'] = $password[0]->password;
+                    $email = User::updateStudentEmail($input);
+                    $sms = User::updateStudentSMS($input);
+
+                    $response['status'] = "success";
+                    $response['code'] = 200;
+                    $response['message'] = "OK";
+                    $response['data'] = $updateParentData;
+                 }
+            }
+            else{
+                 if($updateParentData){
+                    $password = User::getPassword($parent_id);
+                    $input['password'] = $password[0]->password;
+                    $email = User::updateStudentEmail($input);
+                    $sms = User::updateStudentSMS($input);
+
+                    $response['status'] = "success";
+                    $response['code'] = 200;
+                    $response['message'] = "OK";
+                    $response['data'] = $updateParentData;
+                 }
+                 else{
+                    $response['status'] = "success";
+                    $response['code'] = 304;
+                    $response['message'] = "Not Modified";
+                    $response['data'] = $updateStudentData;
+                 } 
+            } 
+            return response()->json($response);
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public  function deleteStudent(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);   
+         $student_id = $input['student_id'];
+        try{
+
+            $parentIdByStudentId = User::getParentId($student_id);
+            $parent_id = $parentIdByStudentId[0]->parent_id;
+            
+            $countStudents = User::countStudentsByParent($parent_id);
+            //return response()->json($student_id);
+            if(count($countStudents)==1)
+            {
+                $deleteParent = User::deleteParent($parent_id);
+            }
+            
+            $deleteStudent = User::deleteStudent($student_id);
+            
+            //return response()->json($parentIdByStudentId);
+
+            if($deleteStudent){
+
+                $response['status'] = "success";
+                $response['code'] = 200;
+                $response['message'] = "OK";
+                $response['data'] = $deleteStudent;
+            }
+            else{
+                 
+                $response['status'] = "success";
+                $response['code'] = 304;
+                $response['message'] = "Already Deleted";
+                $response['data'] = $updateStudentData;
+            } 
+            return response()->json($response);
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public  function groupNotification(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+        $data = array();
+        $data['group_id'] = $input['group_id'];   
+        $data['notification_type'] = $input['notification_type'];
+        
+        //return response()->json($data);
+        try{
+
+            $group = User::getGroupData($data);
+
+            $emailData = array();
+            $smsData = array();
+            $imageData = array();
+            //return response()->json($group);
+            if($data['notification_type'] == 1) //1.Email
+            {
+                $data['subject'] = $input['subject'];
+                $data['message'] = $input['message'];
+
+                foreach ($group as $key => $value) {
+                    $emailData['subject'] = $data['subject'];
+                    $emailData['message'] = $data['message'];
+                    $emailData['type'] = $data['notification_type'];
+                    $emailData['email'] = $group[$key]->email;
+                    $emailData['mobile'] = $group[$key]->mobile;
+                    $emailData['group_id'] = $group[$key]->group_id;
+                    $emailData['student_id'] = $group[$key]->id;
+                    $emailData['parent_id'] = $group[$key]->parent_id;
+                    $emailData['user_id'] = $group[$key]->user_id;
+                    $emailData['name'] = $group[$key]->name;
+
+                    $insertNotification = User::insertNotification($emailData);
+                    //return response()->json($insertNofification);
+                    $email = User::groupEmail($emailData);
+                } 
+
+                if($insertNotification)
+                {
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertNotification;
+                    return response()->json($response);
+                }      
+            }
+
+            if($data['notification_type'] == 2) //2.SMS
+            {
+                $data['message'] = $input['message'];
+
+                foreach ($group as $key => $value) {
+                    $smsData['message'] = $data['message'];
+                    $smsData['type'] = $data['notification_type'];
+                    $smsData['mobile'] = $group[$key]->mobile;
+                    $smsData['email'] = $group[$key]->email;
+                    $smsData['group_id'] = $group[$key]->group_id;
+                    $smsData['student_id'] = $group[$key]->id;
+                    $smsData['parent_id'] = $group[$key]->parent_id;
+                    $smsData['user_id'] = $group[$key]->user_id;
+                    $smsData['name'] = $group[$key]->name;
+
+                    $insertNotification = User::insertNotification($smsData);
+
+                    $sms = User::groupSMS($smsData);
+                }
+
+                if($insertNotification)
+                {
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertNotification;
+                     return response()->json($response);
+                }    
+                
+            }
+
+            if($data['notification_type'] == 3) //3.Image
+            {
+                $data['image'] = $input['image'];
+                $data['subject'] = $input['subject'];
+                //return response()->json($group);
+                foreach ($group as $key => $value) {
+                    $imageData['image'] = $data['image'];
+                    $imageData['type'] = $data['notification_type'];
+                    $imageData['mobile'] = $group[$key]->mobile;
+                    $imageData['email'] = $group[$key]->email;
+                    $imageData['group_id'] = $group[$key]->group_id;
+                    $imageData['student_id'] = $group[$key]->id;
+                    $imageData['parent_id'] = $group[$key]->parent_id;
+                    $imageData['user_id'] = $group[$key]->user_id;
+                    $imageData['name'] = $group[$key]->name;
+                    
+                    $insertNotification = User::insertNotification($imageData);
+
+                }
+                
+                if($insertNotification)
+                {
+                    $response['status'] = "success";
+                    $response['code'] = "201";
+                    $response['message'] = "Created";
+                    $response['data'] = $insertNotification;
+                    return response()->json($response);
+                }    
+            }
         }
         catch (\Exception $e){
             $response['status'] = "failed";

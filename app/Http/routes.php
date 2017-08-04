@@ -15,7 +15,7 @@ $api = app('Dingo\Api\Routing\Router');
 
 
 $api->version('v1', function ($api) {
-    $api->post('loginUser', 'App\Http\Controllers\Api\V1\UsersController@loginUser');
+    $api->post('login', 'App\Http\Controllers\Api\V1\UsersController@login');
 });
 
 $api->version('v1', function ($api) {
@@ -48,6 +48,18 @@ $api->version('v1', function ($api) {
 
 $api->version('v1', function ($api) {
     $api->post('userGroupStudent', 'App\Http\Controllers\Api\V1\UsersController@userGroupStudent');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('updateStudent', 'App\Http\Controllers\Api\V1\UsersController@updateStudent');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('deleteStudent', 'App\Http\Controllers\Api\V1\UsersController@deleteStudent');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('groupNotification', 'App\Http\Controllers\Api\V1\UsersController@groupNotification');
 });
 
 Route::get('/', function () {

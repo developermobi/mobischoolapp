@@ -26,12 +26,12 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public static function authenticate($userName,$password)
+    public static function authenticate($userName)
     {
        $result = DB::table('users')->where(function ($query) use ($userName) {
             $query->where('email','=',$userName)
                 ->orWhere('mobile','=',$userName);
-        })->where('password','=',$password)->get();
+        })->get();
 
         return $result; 
     }
@@ -57,6 +57,17 @@ class User extends Authenticatable
         return $update;
     }
 
+    public static function updateStudent($data,$student_id)
+    {  
+        $update= DB::table('student')->where('id','=',$student_id)->update($data);
+        return $update;
+    }
+
+    public static function updateParent($data,$parent_id)
+    {
+        $update= DB::table('users')->where('id','=',$parent_id)->update($data);
+        return $update;
+    }
     public static function checkUserName($userName)
     {
        $result = DB::table('users')->where(function ($query) use ($userName) {
@@ -69,7 +80,7 @@ class User extends Authenticatable
 
     public static function insertParentLogin($data)
     {
-       $result = DB::table('parent_login')->insertGetId($data);
+       $result = DB::table('users')->insertGetId($data);
         return $result; 
     }
 
@@ -84,7 +95,7 @@ class User extends Authenticatable
         $email = $data['email'];
         $mobile = $data['mobile'];
 
-        $result = DB::table('parent_login')->where('email','=',$email)->orWhere('mobile','=',$mobile)->get();
+        $result = DB::table('users')->where('email','=',$email)->orWhere('mobile','=',$mobile)->get();
         return $result; 
     }
 
@@ -124,6 +135,60 @@ class User extends Authenticatable
         $user_id = $data['user_id'];
 
         $result = DB::table('student')->where('user_id','=',$user_id)->where('group_id','=',$group_id)->where('status','=',1)->get();
+        return $result; 
+    }
+
+    public static function getPassword($parent_id)
+    {
+        $result = DB::table('parent_login')->where('id','=',$parent_id)->get();
+        return $result; 
+    }
+
+    public static function getParentId($student_id)
+    {
+        $result = DB::table('student')->where('id','=',$student_id)->get();
+        return $result; 
+    }
+
+    public static function countStudentsByParent($parent_id)
+    {
+        $result = DB::table('student')->where('parent_id','=',$parent_id)->get();
+        return $result; 
+    }
+
+    public static function deleteParent($parent_id)
+    {
+        $data = array();
+        $data['status'] = 0;
+        $update= DB::table('users')->where('id','=',$parent_id)->update($data);
+        return $update;
+    }
+
+    public static function deleteStudent($student_id)
+    {
+        $data = array();
+        $data['status'] = 0;
+        $update= DB::table('student')->where('id','=',$student_id)->update($data);
+        return $update;
+    }
+
+    public static function getGroupData($data)
+    {
+        $group_id = $data['group_id'];
+        $result = DB::table('student')
+        ->join('parent_login', 'parent_login.id', '=', 'student.parent_id')
+        ->select('student.*', 'parent_login.email', 'parent_login.mobile')
+        ->whereIn('group_id',[$group_id])->get();
+        return $result; 
+    }
+
+    public static function insertNotification($data)
+    {
+        unset($data['name']);
+        unset($data['email']);
+        unset($data['mobile']);
+        //return $data;
+        $result = DB::table('notification')->insert($data);
         return $result; 
     }
 
@@ -235,6 +300,74 @@ public static function registrationSMS($userInfo)
     return file_get_contents($sms_url);
 }
 
+public static function updateStudentEmail($userInfo)
+{
+
+    $res = Mail::send('emails.updateStudent',['userInfo' => $userInfo], function($message) use ($userInfo){
+
+    $message->from('no-reply@mobisofttech.co.in', 'Mobisoft Technology');
+    $message->to($userInfo['email'])->subject('Update Details');
+    $message->cc('ziaurrahman.a@mobisofttech.co.in');
+    $message->bcc('tushar.k@mobisofttech.co.in');      
+
+    });
+
+    return $res;
+}
+
+public static function updateStudentSMS($userInfo)
+{
+    $user=env('SMS_USERNAME');
+    $pwd=env('SMS_PASSWORD');
+    $senderID=env('MOBSFT'); 
+
+    $name = $userInfo['name'];
+    $userName = $userInfo['email']." / ".$userInfo['mobile'];
+    $password = $userInfo['password'];
+    $mobile = $userInfo['mobile'];
+
+    $msgtxt="Dear ".$name.", Your updated detais are.\nUser Name is ".$userName." .\nPassword is ".$password.".\nRegards,\nMobisoft Technology";
+    $msgtxt=urlencode($msgtxt);
+
+    $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendmultiplesms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile.",".$abiMobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+    return file_get_contents($sms_url);
+}
+
+public static function groupEmail($userInfo)
+{
+
+    $res = Mail::send('emails.groupEmail',['userInfo' => $userInfo], function($message) use ($userInfo){
+
+    $message->from('no-reply@mobisofttech.co.in', 'Mobisoft Technology');
+    $message->to($userInfo['email'])->subject($userInfo['subject']);
+    $message->cc('ziaurrahman.a@mobisofttech.co.in');
+    $message->bcc('tushar.k@mobisofttech.co.in');      
+
+    });
+
+    return $res;
+}
+
+public static function groupSMS($userInfo)
+{
+    $user=env('SMS_USERNAME');
+    $pwd=env('SMS_PASSWORD');
+    $senderID=env('MOBSFT'); 
+
+    $name = $userInfo['name'];
+    $message = $userInfo['message'];
+    $mobile = $userInfo['mobile'];
+
+    $msgtxt="Dear ".$name.",\n".$message.".\nRegards,\nMobisoft Technology";
+    $msgtxt=urlencode($msgtxt);
+
+    $sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendmultiplesms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile.",".$abiMobile."&type=1&message=".$msgtxt;
+        //$sms_url= "http://makemysms.in/api/sendsms.php?username=".$user."&password=".$pwd."&sender=".$senderID."&mobile=".$mobile."&type=1&message=".$msgtxt;
+    return file_get_contents($sms_url);
+}
 
 
     //************************************END email and sms functions*****************************************//
