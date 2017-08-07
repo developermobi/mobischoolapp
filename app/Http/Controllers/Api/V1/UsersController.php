@@ -370,6 +370,7 @@ class UsersController extends Controller
 
         try{
             $result = User::getUserGroupStudent($input);  
+
              if(sizeof($result) > 0){  
              
                     $response['status'] = "success";
@@ -516,6 +517,89 @@ class UsersController extends Controller
                 $response['code'] = 304;
                 $response['message'] = "Already Deleted";
                 $response['data'] = $updateStudentData;
+            } 
+            return response()->json($response);
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public  function deleteGroup(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);   
+         $group_id = $input['group_id'];
+        try{
+            
+            $deleteGroup = User::deleteGroup($group_id);
+            
+            //return response()->json($parentIdByStudentId);
+
+            if($deleteGroup){
+
+                $response['status'] = "success";
+                $response['code'] = 200;
+                $response['message'] = "OK";
+                $response['data'] = $deleteGroup;
+            }
+            // else{
+                 
+            //     $response['status'] = "success";
+            //     $response['code'] = 304;
+            //     $response['message'] = "Already Deleted";
+            //     $response['data'] = $updateStudentData;
+            // } 
+            return response()->json($response);
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }
+    }
+
+    public function updateGroup(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+        $validator = Validator::make($input, [
+            'name' => 'required',
+        ]);    
+       
+        if($validator->fails()){
+
+            $response['status'] = "Failed";
+            $response['code'] = 400;
+            $response['message'] = $validator->errors()->all();
+            return response()->json($response);
+        }
+
+       
+
+        try{
+            
+            $updateGroup = User::updateGroup($input);
+            
+            //return response()->json($parentIdByStudentId);
+
+            if($updateGroup){
+
+                $response['status'] = "success";
+                $response['code'] = 200;
+                $response['message'] = "OK";
+                $response['data'] = $updateGroup;
+            }
+            else{
+                 
+                $response['status'] = "success";
+                $response['code'] = 304;
+                $response['message'] = "Already Updated";
+                $response['data'] = $updateGroup;
             } 
             return response()->json($response);
         }

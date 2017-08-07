@@ -133,7 +133,7 @@ class User extends Authenticatable
     {
         $group_id = $data['group_id'];
         $user_id = $data['user_id'];
-
+        //return $data;
         $result = DB::table('student')->where('user_id','=',$user_id)->where('group_id','=',$group_id)->where('status','=',1)->get();
         return $result; 
     }
@@ -169,6 +169,24 @@ class User extends Authenticatable
         $data = array();
         $data['status'] = 0;
         $update= DB::table('student')->where('id','=',$student_id)->update($data);
+        return $update;
+    }
+
+    public static function deleteGroup($group_id)
+    {
+        $data = array();
+        $data['status'] = 0;
+        $update= DB::table('group')->where('id','=',$group_id)->update($data);
+        return $update;
+    }
+
+    public static function updateGroup($data)
+    {
+        $updateData = array();
+        $updateData['name'] = $data['name'];
+        $group_id = $data['group_id'];
+        $user_id = $data['user_id'];
+        $update= DB::table('group')->where('id','=',$group_id)->where('user_id','=',$user_id)->update($updateData);
         return $update;
     }
 

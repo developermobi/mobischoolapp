@@ -55,7 +55,15 @@ $api->version('v1', function ($api) {
 });
 
 $api->version('v1', function ($api) {
+    $api->post('updateGroup', 'App\Http\Controllers\Api\V1\UsersController@updateGroup');
+});
+
+$api->version('v1', function ($api) {
     $api->post('deleteStudent', 'App\Http\Controllers\Api\V1\UsersController@deleteStudent');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('deleteGroup', 'App\Http\Controllers\Api\V1\UsersController@deleteGroup');
 });
 
 $api->version('v1', function ($api) {
