@@ -194,7 +194,7 @@ class User extends Authenticatable
     {
         $group_id = $data['group_id'];
         $result = DB::table('student')
-        ->join('users', 'users.id', '=', 'student.parent_id')
+        ->join('users', 'users.id', '=', 'student.users_id')
         ->select('student.*', 'users.email', 'users.mobile')
         ->whereIn('student.group_id',[$group_id])->get();
         return $result; 
@@ -206,7 +206,7 @@ class User extends Authenticatable
         $student_id = $data['student_id'];
 
         $result = DB::table('student')
-        ->join('users', 'users.id', '=', 'student.parent_id')
+        ->join('users', 'users.id', '=', 'student.users_id')
         ->select('student.*', 'users.email', 'users.mobile')
         ->where('student.group_id','=',[$group_id])
         ->whereIn('student.id',[$student_id])->get();
@@ -236,6 +236,7 @@ class User extends Authenticatable
         unset($data['subject']);
         unset($data['type']);
         unset($data['image']);
+        unset($data['parent_id']);
         //return $data;
         $result = DB::table('notification_sent')->insert($data);
         return $result; 

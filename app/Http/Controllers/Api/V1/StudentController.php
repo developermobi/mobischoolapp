@@ -84,4 +84,37 @@ class StudentController extends Controller
         }     
     }
 
+    public  function getStudentNotification(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+
+        $user_id=$input['user_id'];
+
+        try{
+            $result = Student::getStudentNotification($user_id);    
+            
+            if(sizeof($result) > 0)
+            {
+                $response['status'] = "success";
+                $response['code'] = 302;
+                $response['message'] = "Found";
+                $response['data'] = $result;
+                return response()->json($response);
+            }
+            else
+            {
+                $response['status'] = "success";
+                $response['code'] = 204;
+                $response['message'] = "No Content";
+                return response()->json($response);
+            }
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }     
+    }
 }

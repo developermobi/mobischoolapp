@@ -33,9 +33,16 @@ class Student extends Authenticatable
         return $result; 
     }
 
-     public static function getSingleStudent($student_id)
+    public static function getSingleStudent($student_id)
     {
        $result = DB::table('vw_student')->where('id','=',$student_id)->get();
+
+        return $result; 
+    }
+
+    public static function getStudentNotification($user_id)
+    {
+       $result = DB::table('vw_notification')->where('user_id','=',$user_id)->get();
 
         return $result; 
     }
