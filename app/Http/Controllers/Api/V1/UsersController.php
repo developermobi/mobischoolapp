@@ -226,9 +226,10 @@ class UsersController extends Controller
         $parent['password'] = $input['password'];
         $parent['email'] = $input['email'];
         $parent['mobile'] = $input['mobile'];
+        $parent['user_type'] = 2;
 
         $student['name'] = $input['name'];
-        $student['user_id'] = $input['user_id'];
+        //$student['user_id'] = $input['user_id'];
         $student['group_id'] = $input['group_id'];
 
         try{
@@ -236,11 +237,13 @@ class UsersController extends Controller
             $result = User::checkParentLogin($input);
 
             if(sizeof($result) > 0){ 
-                $student['parent_id'] = $result[0]->id;
+                //$student['parent_id'] = $result[0]->id;
+                $student['user_id'] = $result[0]->id;
             }
             else{
                 $parentRegistration = User::insertParentLogin($parent);
-                $student['parent_id'] = $parentRegistration;
+                //$student['parent_id'] = $parentRegistration;
+                $student['user_id'] = $parentRegistration;
             }
 
             $result_student = User::checkStudent($student);
@@ -427,7 +430,7 @@ class UsersController extends Controller
             $parent['mobile'] = $input['mobile'];
 
             $parentIdByStudentId = User::getParentId($student_id);
-            $parent_id = $parentIdByStudentId[0]->parent_id;
+            $parent_id = $parentIdByStudentId[0]->user_id;
             
             //return response()->json($parentIdByStudentId);
 
@@ -491,7 +494,7 @@ class UsersController extends Controller
         try{
 
             $parentIdByStudentId = User::getParentId($student_id);
-            $parent_id = $parentIdByStudentId[0]->parent_id;
+            $parent_id = $parentIdByStudentId[0]->user_id;
             
             $countStudents = User::countStudentsByParent($parent_id);
             //return response()->json($student_id);

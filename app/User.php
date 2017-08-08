@@ -102,9 +102,9 @@ class User extends Authenticatable
     public static function checkStudent($data)
     {
         $name = $data['name'];
-        $parent_id = $data['parent_id'];
+        $user_id = $data['user_id'];
 
-        $result = DB::table('student')->where('name','=',$name)->where('parent_id','=',$parent_id)->get();
+        $result = DB::table('student')->where('name','=',$name)->where('user_id','=',$user_id)->get();
         return $result; 
     }
 
@@ -113,19 +113,19 @@ class User extends Authenticatable
         $name = $data['name'];
         $user_id = $data['user_id'];
 
-        $result = DB::table('group')->where('name','=',$name)->where('user_id','=',$user_id)->get();
+        $result = DB::table('groups')->where('name','=',$name)->where('user_id','=',$user_id)->get();
         return $result; 
     }
 
     public static function addGroup($data)
     {
-       $result = DB::table('group')->insert($data);
+       $result = DB::table('groups')->insert($data);
         return $result; 
     }
 
     public static function getUserGroup($user_id)
     {
-        $result = DB::table('group')->where('user_id','=',$user_id)->where('status','=',1)->get();
+        $result = DB::table('groups')->where('user_id','=',$user_id)->where('status','=',1)->get();
         return $result; 
     }
 
@@ -152,7 +152,7 @@ class User extends Authenticatable
 
     public static function countStudentsByParent($parent_id)
     {
-        $result = DB::table('student')->where('parent_id','=',$parent_id)->get();
+        $result = DB::table('student')->where('user_id','=',$parent_id)->get();
         return $result; 
     }
 
@@ -176,7 +176,7 @@ class User extends Authenticatable
     {
         $data = array();
         $data['status'] = 0;
-        $update= DB::table('group')->where('id','=',$group_id)->update($data);
+        $update= DB::table('groups')->where('id','=',$group_id)->update($data);
         return $update;
     }
 
@@ -186,7 +186,7 @@ class User extends Authenticatable
         $updateData['name'] = $data['name'];
         $group_id = $data['group_id'];
         $user_id = $data['user_id'];
-        $update= DB::table('group')->where('id','=',$group_id)->where('user_id','=',$user_id)->update($updateData);
+        $update= DB::table('groups')->where('id','=',$group_id)->where('user_id','=',$user_id)->update($updateData);
         return $update;
     }
 

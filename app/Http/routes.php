@@ -74,6 +74,15 @@ $api->version('v1', function ($api) {
     $api->post('studentNotification', 'App\Http\Controllers\Api\V1\UsersController@studentNotification');
 });
 
+$api->version('v1', function ($api) {
+    $api->post('userStudentList', 'App\Http\Controllers\Api\V1\StudentController@userStudentList');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('getStudentById', 'App\Http\Controllers\Api\V1\StudentController@getStudentById');
+});
+
+
 Route::get('/', function () {
     return view('welcome');
 });
