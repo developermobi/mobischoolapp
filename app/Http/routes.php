@@ -86,6 +86,13 @@ $api->version('v1', function ($api) {
     $api->post('getStudentNotification', 'App\Http\Controllers\Api\V1\StudentController@getStudentNotification');
 });
 
+$api->version('v1', function ($api) {
+    $api->post('unreadCounts', 'App\Http\Controllers\Api\V1\StudentController@unreadCounts');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('readCounts', 'App\Http\Controllers\Api\V1\StudentController@readCounts');
+});
 
 Route::get('/', function () {
     return view('welcome');

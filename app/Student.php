@@ -47,6 +47,27 @@ class Student extends Authenticatable
         return $result; 
     }
 
+    public static function getUnreadCounts($user_id)
+    {
+       $result = DB::table('vw_notification')
+       ->where('read_status','=',0)
+       ->where('status','=',1)
+       ->where('user_id','=',$user_id)
+       ->count();
+        
+        return $result; 
+    }
+
+    public static function getReadCounts($user_id)
+    {
+       $result = DB::table('vw_notification')
+       ->where('read_status','=',1)
+       ->where('status','=',1)
+       ->where('user_id','=',$user_id)
+       ->count();
+        
+        return $result; 
+    }
    
 
 //************************************Start email and sms functions*****************************************//
@@ -70,7 +91,7 @@ public static function resetPasswordSMS($userInfo)
 {
     $user=env('SMS_USERNAME');
     $pwd=env('SMS_PASSWORD');
-    $senderID=env('MOBSFT'); 
+    $senderID=env('SMS_SENDERID'); 
 
     $name = $userInfo['name'];
     $userName = $userInfo['user_name'];

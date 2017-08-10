@@ -117,4 +117,52 @@ class StudentController extends Controller
             return response()->json($response);
         }     
     }
+
+    public  function unreadCounts(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+
+        $user_id=$input['user_id'];
+
+        try{
+            $result = Student::getUnreadCounts($user_id);    
+            
+            $response['status'] = "success";
+            $response['code'] = 302;
+            $response['message'] = "Found";
+            $response['data'] = $result;
+            return response()->json($response);
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }     
+    }
+
+    public  function readCounts(Request $requestData)
+    {
+        $input=$requestData->all();
+        //return response()->json($input);
+
+        $user_id=$input['user_id'];
+
+        try{
+            $result = Student::getReadCounts($user_id);    
+            
+            $response['status'] = "success";
+            $response['code'] = 302;
+            $response['message'] = "Found";
+            $response['data'] = $result;
+            return response()->json($response);
+        }
+        catch (\Exception $e){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = $e->getMessage();
+            return response()->json($response);
+        }     
+    }
 }

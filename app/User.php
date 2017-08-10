@@ -263,7 +263,7 @@ public static function resetPasswordSMS($userInfo)
 {
     $user=env('SMS_USERNAME');
     $pwd=env('SMS_PASSWORD');
-    $senderID=env('MOBSFT'); 
+    $senderID=env('SMS_SENDERID'); 
 
     $name = $userInfo['name'];
     $userName = $userInfo['user_name'];
@@ -298,7 +298,7 @@ public static function newPasswordSMS($userInfo)
 {
     $user=env('SMS_USERNAME');
     $pwd=env('SMS_PASSWORD');
-    $senderID=env('MOBSFT'); 
+    $senderID=env('SMS_SENDERID'); 
 
     $name = $userInfo['name'];
     $userName = $userInfo['user_name'];
@@ -333,7 +333,7 @@ public static function registrationSMS($userInfo)
 {
     $user=env('SMS_USERNAME');
     $pwd=env('SMS_PASSWORD');
-    $senderID=env('MOBSFT'); 
+    $senderID=env('SMS_SENDERID'); 
 
     $name = $userInfo['name'];
     $userName = $userInfo['email']." / ".$userInfo['mobile'];
@@ -368,7 +368,7 @@ public static function updateStudentSMS($userInfo)
 {
     $user=env('SMS_USERNAME');
     $pwd=env('SMS_PASSWORD');
-    $senderID=env('MOBSFT'); 
+    $senderID=env('SMS_SENDERID'); 
 
     $name = $userInfo['name'];
     $userName = $userInfo['email']." / ".$userInfo['mobile'];
@@ -403,7 +403,7 @@ public static function groupSMS($userInfo)
 {
     $user=env('SMS_USERNAME');
     $pwd=env('SMS_PASSWORD');
-    $senderID=env('MOBSFT'); 
+    $senderID=env('SMS_SENDERID'); 
 
     $name = $userInfo['name'];
     $message = $userInfo['message'];
