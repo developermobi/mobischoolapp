@@ -91,7 +91,11 @@ $api->version('v1', function ($api) {
 });
 
 $api->version('v1', function ($api) {
-    $api->post('readCounts', 'App\Http\Controllers\Api\V1\StudentController@readCounts');
+    $api->post('readNotification', 'App\Http\Controllers\Api\V1\StudentController@readNotification');
+});
+
+$api->version('v1', function ($api) {
+    $api->post('fileUpload', 'App\Http\Controllers\Api\V1\UsersController@fileUpload');
 });
 
 Route::get('/', function () {

@@ -142,19 +142,19 @@ class StudentController extends Controller
         }     
     }
 
-    public  function readCounts(Request $requestData)
+    public  function readNotification(Request $requestData)
     {
         $input=$requestData->all();
         //return response()->json($input);
 
-        $user_id=$input['user_id'];
+        $notification_id=$input['notification_id'];
 
         try{
-            $result = Student::getReadCounts($user_id);    
+            $result = Student::updateReadStatus($notification_id);    
             
             $response['status'] = "success";
-            $response['code'] = 302;
-            $response['message'] = "Found";
+            $response['code'] = 200;
+            $response['message'] = "OK";
             $response['data'] = $result;
             return response()->json($response);
         }

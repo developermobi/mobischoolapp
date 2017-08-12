@@ -134,7 +134,7 @@ class User extends Authenticatable
         $group_id = $data['group_id'];
         $user_id = $data['user_id'];
         //return $data;
-        $result = DB::table('student')->where('user_id','=',$user_id)->where('group_id','=',$group_id)->where('status','=',1)->get();
+        $result = DB::table('vw_student')->where('user_id','=',$user_id)->where('group_id','=',$group_id)->where('status','=',1)->get();
         return $result; 
     }
 
@@ -241,6 +241,7 @@ class User extends Authenticatable
         $result = DB::table('notification_sent')->insert($data);
         return $result; 
     }
+
 
 //************************************Start email and sms functions*****************************************//
 

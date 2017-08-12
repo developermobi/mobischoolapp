@@ -12,6 +12,7 @@ use Session;
 use DB;
 
 DB::enableQueryLog();
+ini_set('max_input_vars','10000' );
 
 class UsersController extends Controller
 {
@@ -838,35 +839,73 @@ class UsersController extends Controller
             {
                 $data['image'] = $input['image'];
                 $data['subject'] = $input['subject'];
-                //return response()->json($group);
-                foreach ($selectedStudents as $key => $value) {
-                    $imageData['image'] = $data['image'];
-                    $imageData['type'] = $data['notification_type'];
-                    $imageData['subject'] = $data['subject'];
-                    $imageData['mobile'] = $selectedStudents[$key]->mobile;
-                    $imageData['email'] = $selectedStudents[$key]->email;
-                    $imageData['group_id'] = $selectedStudents[$key]->group_id;
-                    $imageData['student_id'] = $selectedStudents[$key]->id;
-                    $imageData['parent_id'] = $selectedStudents[$key]->parent_id;
-                    $imageData['user_id'] = $selectedStudents[$key]->user_id;
-                    $imageData['name'] = $selectedStudents[$key]->name;
-                    
-                    $insertNotification = User::insertNotification($imageData);
 
-                    $imageData['notification_id'] = $insertNotification;
+                $imgarr = explode(',', $data['image']);
 
-                    $insertNotificationSent = User::insertNotificationSent($imageData);
-
-                }
-                
-                if($insertNotificationSent)
-                {
-                    $response['status'] = "success";
-                    $response['code'] = "201";
-                    $response['message'] = "Created";
-                    $response['data'] = $insertNotificationSent;
+                if(!isset($imgarr[1])){
+                    $response['status'] = "Bad Request";
+                    $response['code'] = 400;
+                    $response['message'] = 'Error on post data image. String is not the expected string.';
                     return response()->json($response);
-                }    
+                }
+
+                $image = base64_decode($imgarr[1]);
+                
+                if(!is_null($image)){
+                    $file_name = time().'.'.'JPEG';
+                    $file = public_path('/images/').$file_name;
+                    if(file_exists($file)){
+                        $response['status'] = "Conflict";
+                        $response['code'] = 409;
+                        $response['message'] = 'Image already exists on server.';
+                        $response['data'] = $file;
+                        return response()->json($response);
+                    }
+                    if(file_put_contents($file, $image) !== false){
+
+                       foreach ($selectedStudents as $key => $value) {
+                            $imageData['image'] = $file_name;
+                            $imageData['type'] = $data['notification_type'];
+                            $imageData['subject'] = $data['subject'];
+                            $imageData['mobile'] = $selectedStudents[$key]->mobile;
+                            $imageData['email'] = $selectedStudents[$key]->email;
+                            $imageData['group_id'] = $selectedStudents[$key]->group_id;
+                            $imageData['student_id'] = $selectedStudents[$key]->id;
+                            $imageData['parent_id'] = $selectedStudents[$key]->parent_id;
+                            $imageData['user_id'] = $selectedStudents[$key]->user_id;
+                            $imageData['name'] = $selectedStudents[$key]->name;
+                            
+                            $insertNotification = User::insertNotification($imageData);
+
+                            $imageData['notification_id'] = $insertNotification;
+
+                            $insertNotificationSent = User::insertNotificationSent($imageData);
+
+                        }
+                        
+                        if($insertNotificationSent)
+                        {
+                            $response['status'] = "success";
+                            $response['code'] = "201";
+                            $response['message'] = "Created";
+                            $response['data'] = $insertNotificationSent;
+                            return response()->json($response);
+                        } 
+                    }
+                    else{
+                        $response['status'] = "Bad Request";
+                        $response['code'] = 400;
+                        $response['message'] = 'Error writing file to disk';
+                        return response()->json($response);
+                    }
+                }
+                else{
+                    $response['status'] = "Bad Request";
+                    $response['code'] = 400;
+                    $response['message'] = 'Error decoding base64 string.';
+                    return response()->json($response);
+                }
+                //return response()->json($group);   
             }
         }
         catch (\Exception $e){
@@ -875,6 +914,65 @@ class UsersController extends Controller
             $response['message'] = $e->getMessage();
             return response()->json($response);
         }
+    }
+
+    public function fileUpload(Request $request)
+    {
+       $input = $request->all();
+       //return response()->json($input['image']);
+        // $this->validate($request, [
+        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        // ]);
+        $imgarr = explode(',', $input['image']);
+
+        if(!isset($imgarr[1])){
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = 'Error on post data image. String is not the expected string.';
+            return response()->json($response);
+        }
+
+        $image = base64_decode($imgarr[1]);
+        
+        if(!is_null($image)){
+            $file = public_path('/images/').time().'.'.'JPEG';
+            if(file_exists($file)){
+                $response['status'] = "Conflict";
+                $response['code'] = 409;
+                $response['message'] = 'Image already exists on server.';
+                $response['data'] = $file;
+                return response()->json($response);
+            }
+            if(file_put_contents($file, $image) !== false){
+                $response['status'] = "success";
+                $response['code'] = 200;
+                $response['message'] = 'Image saved to server';
+                $response['data'] = $file;
+                return response()->json($response);
+            }
+            else{
+                $response['status'] = "Bad Request";
+                $response['code'] = 400;
+                $response['message'] = 'Error writing file to disk';
+                return response()->json($response);
+            }
+        }
+        else{
+            $response['status'] = "Bad Request";
+            $response['code'] = 400;
+            $response['message'] = 'Error decoding base64 string.';
+            return response()->json($response);
+        }
+        //$image = $request->file('image');
+        //return $image;
+        //$input['imagename'] = time().'.'.$image->getClientOriginalExtension();
+        //return $input;
+        //$destinationPath = public_path('/images');
+        //$image->move($destinationPath, $input['imagename']);
+
+        //return $this->postImage->add($input);
+
+         
     }
 
 }

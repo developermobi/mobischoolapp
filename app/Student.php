@@ -58,15 +58,12 @@ class Student extends Authenticatable
         return $result; 
     }
 
-    public static function getReadCounts($user_id)
-    {
-       $result = DB::table('vw_notification')
-       ->where('read_status','=',1)
-       ->where('status','=',1)
-       ->where('user_id','=',$user_id)
-       ->count();
-        
-        return $result; 
+    public static function updateReadStatus($notification_id)
+    {  
+        $data = array();
+        $data['read_status'] = 1;
+        $update= DB::table('notification')->where('id','=',$notification_id)->update($data);
+        return $update;
     }
    
 
